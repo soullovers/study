@@ -21,6 +21,16 @@ sqoop eval \
 sqoop import --table accounts \
   --connect jdbc:mysql://localhost/loudacre \
   --username training --password training \
+  --target-dir /loudacre/accounts \
+  --delete-target-dir \
+  --fields-terminated-by "\t" 
+```
+
+### columns, where
+```
+sqoop import --table accounts \
+  --connect jdbc:mysql://localhost/loudacre \
+  --username training --password training \
   --columns "acct_num,first_name,last_name,state" \
   --where "state='CA'" \
   --target-dir /loudacre/accounts \
@@ -69,7 +79,5 @@ sqoop export \
   --username training --password training \
   --export-dir /loudacre/accounts \
   --input-fields-terminated-by "\t" \
-  --input-lines-terminated-by "\n" \
-  --table new_account \
-  -m1
+  --table new_account 
 ```
