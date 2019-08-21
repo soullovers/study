@@ -1,3 +1,5 @@
+
+# weblogs
 ## 파일-> RDD생성
 ```
 var myrdd = sc.textFile("file:/home/training/training_materials/data/frostroad.txt")
@@ -42,7 +44,7 @@ logrdd.map(line => line.length).take(5)
 ```
 
 
-## iplist저장
+## ip list저장
 ```
 logrdd.map(line => line.split(' ')).take(5)
 logrdd.map(line => line.split(' ')(0)).take(5)
@@ -62,8 +64,8 @@ userids.take(5).foreach(println)
 
 ```
 
-
-# data load
+# activations
+## data load
 ```
  hdfs dfs -put $DEVDATA/activations /loudacre/
  hdfs dfs -ls /loudacre/activations
@@ -114,8 +116,8 @@ hdfs dfs -cat /loudacre/account-models/part-00000
 
 
 
-
-## bonus
+# device status
+## data load
 ```
  hdfs dfs -put ~/training_materials/data/devicestatus.txt /loudacre/
  var devicerdd = sc.textFile("/loudacre/devicestatus.txt")
@@ -135,7 +137,6 @@ val devstatus = sc.textFile("/loudacre/devicestatus.txt")
 
 // Filter out lines with < 20 characters, use the 20th character as the delimiter, parse the line, and filter out bad lines
 val cleanstatus = devstatus.
-    filter(line => line.length>20).
     map(line => line.split(line.charAt(19))).
     filter(values => values.length == 14)
     
