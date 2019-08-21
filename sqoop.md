@@ -1,6 +1,4 @@
-## 참고사이트
-databrick community edition으로 연습
-https://www.cloudera.com/about/training/certification/cca-spark.html
+
 
 ## mysql 접속
 ```
