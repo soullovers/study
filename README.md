@@ -46,7 +46,24 @@ sqoop eval \
 ```
 
 ## hdfs확인
---
+```
 hdfs dfs -rm -R $target-dir
 hdfs dfs -ls /loudacre/accounts
 hdfs dfs -cat /loudacre/accounts/
+```
+
+## 테이블 생성
+```
+mysql> create table new_account like accounts
+```
+
+## export
+
+```
+sqoop export \
+  --connect jdbc:mysql://localhost/loudacre \
+  --username training --password training \
+  --export-dir /loudacre/accounts \
+  --fields-terminated-by "\t" \
+  --table new_account
+```
