@@ -117,11 +117,15 @@ hdfs dfs -cat /loudacre/account-models/part-00000
 
 
 # device status
-## data load
+## text -> rdd -> etl -> hdfs
 ```
  hdfs dfs -put ~/training_materials/data/devicestatus.txt /loudacre/
  var devicerdd = sc.textFile("/loudacre/devicestatus.txt")
- devicerdd.map(status => status.split(status.cha19))
+ var devicedata = devicerdd.map(status => status.split(','))
+          .filter(values => values.length == 14)
+          .map(values => (values(0), values(1).split(' ')(0), values(12), values(13)))
+ devicedata.map(values => values.toString)   
+           .saveToFile("/loudacre/devicestatus_etl")
 ```
 
 ## solution
@@ -152,8 +156,8 @@ devicedata.
 
 ```
 
-
-## pair
+# pair rdd
+## pair 사용법
 ```
 pair => pair.swap
 pair => pair._1
