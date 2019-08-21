@@ -1,4 +1,8 @@
-# mysql 접속
+## 참고사이트
+databrick community edition으로 연습
+https://www.cloudera.com/about/training/certification/cca-spark.html
+
+## mysql 접속
 ```
 mysql -u trining -p
 show databases;
@@ -64,6 +68,8 @@ sqoop export \
   --connect jdbc:mysql://localhost/loudacre \
   --username training --password training \
   --export-dir /loudacre/accounts \
-  --fields-terminated-by "\t" \
-  --table new_account
+  --input-fields-terminated-by "\t" \
+  --input-lines-terminated-by "\n" \
+  --table new_account \
+  -m1
 ```
