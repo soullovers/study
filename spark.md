@@ -157,3 +157,87 @@ devicedata.
 pair => pair.swap
 pair => pair._1
 ```
+
+### solution
+```
+// Step 1 - Create an RDD based on a subset of weblogs (those ending in digit 2)
+val logs=sc.textFile("/loudacre/weblogs/*2.log")
+
+// map each request (line) to a pair (userid, 1) then sum the hits
+val userreqs = logs. 
+   map(line => line.split(' ')).
+   map(words => (words(2),1)).  
+   reduceByKey((v1,v2) => v1 + v2)
+   
+// Step 2 - return a user count for each hit frequency
+val freqcount = userreqs.map(pair => (pair._2,pair._1)).countByKey()
+
+// Step 3 - Group IPs by user ID
+val userips = logs. 
+    map(line => line.split(' ')).
+    map(words => (words(2),words(0))).
+    groupByKey()
+// print out the first 10 user ids, and their IP list
+for (pair <- userips.take(10)) {
+   println(pair._1 + ":")
+   for (ip <- pair._2) println("\t"+ip)
+}
+
+// Step 4a - map account data to (userid,[values....])
+val accountsdata="/loudacre/accounts/*"
+val accounts = sc.textFile(accountsdata).
+   map(line => line.split(',')).
+   map(account => (account(0),account))
+   
+// Step 4b - Join account data with userreqs then merge hit count into valuelist   
+val accounthits = accounts.join(userreqs)
+
+// Step 4c - Display userid, hit count, first name, last name for the first few elements
+for (pair <- accounthits.take(10)) {
+   printf("%s %s %s %s\n",pair._1,pair._2._2, pair._2._1(3),pair._2._1(4))
+}
+
+
+```
+
+```
+# Set the log level to WARN to reduce distracting INFO messages
+sc.setLogLevel("WARN")
+
+# Step 1 - Create an RDD based on a subset of weblogs (those ending in digit 2)
+logs=sc.textFile("/loudacre/weblogs/*2.log")
+# map each request (line) to a pair (userid, 1), then sum the values
+userreqs = logs \
+   .map(lambda line: line.split()) \
+   .map(lambda words: (words[2],1))  \
+   .reduceByKey(lambda count1,count2: count1 + count2)
+   
+# Step 2 - Show the count frequencies
+freqcount = userreqs.map(lambda (userid,freq): (freq,userid)).countByKey()
+print freqcount
+
+# Step 3 - Group IPs by user ID
+userips = logs \
+   .map(lambda line: line.split()) \
+   .map(lambda words: (words[2],words[0])) \
+   .groupByKey()
+# print out the first 10 user ids, and their IP list
+for (userid,ips) in userips.take(10):
+   print userid, ":"
+   for ip in ips: print "\t",ip
+
+# Step 4a - Map account data to (userid,[values....])
+accountsdata = "/loudacre/accounts"
+accounts = sc.textFile(accountsdata) \
+   .map(lambda s: s.split(',')) \
+   .map(lambda account: (account[0],account))
+
+# Step 4b - Join account data with userreqs then merge hit count into valuelist   
+accounthits = accounts.join(userreqs)
+
+# Step 4c - Display userid, hit count, first name, last name for the first 5 elements
+for (userid,(values,count)) in accounthits.take(5) : 
+    print  userid, count, values[3],values[4]
+   
+
+```
