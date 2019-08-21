@@ -10,7 +10,7 @@ show databases;
 ```
 sqoop import --table accounts \
   --connect jdbc:mysql://localhost/loudacre \
-  --username training --password taining \
+  --username training --password training \
   --columns "acct_num,first_name,last_name,state" \
   --where "state='CA'" \
   --target-dir /loudacre/accounts
