@@ -24,6 +24,17 @@ sqoop import --table accounts \
   --fields-terminated-by "\t" 
 ```
 
+### hive import
+```
+sqoop import --table accounts \
+  --connect jdbc:mysql://localhost/loudacre \
+  --username training --password training \
+  --target-dir /loudacre/accounts \
+  --hive-import \
+  --delete-target-dir
+
+```
+
 ### columns, where
 ```
 sqoop import --table accounts \
