@@ -23,7 +23,7 @@ var fnCol = accountsDF("first_name")
 var isLucy = (fnCol === "Lucy")
 ```
 
-#### 8. Use the lucyCol column expressionina select statement.Because lucyCol is based on a boolean expression, the column values will be true or false depending on the value of the f i r s t _ n a m e column. Confirm that users named Lucy are identified with the value true.
+#### 8. Use the lucyCol column expressionina select statement.Because lucyCol is based on a boolean expression, the column values will be true or false depending on the value of the first_name column. Confirm that users named Lucy are identified with the value true.
 ```
 accountsDF.select($"first_name",$"last_name",isLucy).show()
 ```
@@ -40,25 +40,23 @@ accountsDF.where(fnCol==="Lucy").show(5)
 ```
 
 
-#### 11. Column expressions are not limited to where operations like those above. 
-They can be used in any transformation for which a simple column could be used, such as a select.
-Try selecting the city and state columns,and the first three characters of the phone_number column 
-(in the U.S., the first three digits of a phone number are known as the area code). 
-Use the substr operator on the phone_number column to extract the area code.
+#### 11. Column expressions are not limited to where operations like those above. They can be used in any transformation for which a simple column could be used, such as a select.Try selecting the city and state columns,and the first three characters of the phone_number column (in the U.S., the first three digits of a phone number are known as the area code). Use the substr operator on the phone_number column to extract the area code.
 ```
 accountsDF.select($"city",$"state",accountsDF("phone_number").substr(1,3)).show(5)
 ```
-#### 12. Notice that in the last step, the values returned by the query were correct, but the column name was substring(phone_number, 1, 3),which is longand hard to work with. 
- Repeat the same query, using the alias operator to rename that column as area_code.
+
+
+#### 12. Notice that in the last step, the values returned by the query were correct, but the column name was substring(phone_number, 1, 3),which is longand hard to work with. Repeat the same query, using the alias operator to rename that column as area_code.
 ```
 accountsDF.select($"city",$"state",$"phone_number".substr(1,3).alias("area_code")).show(5)
 ```
 
-#### 13. Perform a query that results in a DataFrame with just first_name and last_name columns, and only includes users whose first and last names both begin with the same two letters. 
-(For example, the user Robert Roget would be included, because both his first and last names begin with “Ro”.)
+
+#### 13. Perform a query that results in a DataFrame with just first_name and last_name columns, and only includes users whose first and last names both begin with the same two letters. (For example, the user Robert Roget would be included, because both his first and last names begin with “Ro”.)
 ```
 accountsDF.where($"first_name".startsWith("Ro") && $"last_name".startsWith("Ro")).show(5)
 ```
+
 
 ## accountsDF struct
 ```
@@ -85,18 +83,19 @@ accountsDF.printSchema()
 accountsDF.show(5)
 ```
 
+
 ## Group and Count Data by Name
 
-#### 14. Query the accountsDF DataFrame using groupBy with count to find out the total number people sharing each last name. 
- (Note that the count aggregation transformation returns a DataFrame, unlike the count DataFrame action, which returns a single value to the driver.)
+#### 14. Query the accountsDF DataFrame using groupBy with count to find out the total number people sharing each last name. (Note that the count aggregation transformation returns a DataFrame, unlike the count DataFrame action, which returns a single value to the driver.)
 ```
 accountsDF.groupBy("first_name").count().show(5)
 ```
 
-###v15. You can also group by multiple columns. Query accountsDF again, this time counting the number of people who share the same last and first name.
+#### 15. You can also group by multiple columns. Query accountsDF again, this time counting the number of people who share the same last and first name.
 ```
 accountsDF.groupBy("first_name","last_name").count().show(5)
 ```
+
 
 ## Join Account Data with Cellular Towers by Zip Code
 
@@ -105,22 +104,22 @@ accountsDF.groupBy("first_name","last_name").count().show(5)
 $ parquet-tools schema hdfs://master-1/loudacre/base_stations.parquet 
 $ parquet-tools head hdfs://master-1/loudacre/base_stations.parquet
 ```
-#### 18. Some account holders live in zip codes that have a base station. 
- Join baseDF and accountsDF to find those users, and for each, include their account ID, first name, last name, and the ID and location data for the base station in their zip code.
+
+
+#### 18. Some account holders live in zip codes that have a base station.  Join baseDF and accountsDF to find those users, and for each, include their account ID, first name, last name, and the ID and location data for the base station in their zip code.
 ```
 accountsDF.join(baseDF, accountsDF("zipcode") === baseDF("zip")).
           select("acct_num", "first_name", "last_name", "id", "lon","zip").show(5)
 ```
 
 ## Count Active Devices
-#### 19. The accountdevice CSV data files contain data lists all the devices used by all the accounts. 
- Each row in the data set includes a row ID, an account ID, a device ID for the type of device, the date the device was activated for the account, and the specific device’s ID for that account.
- The CSV data files are in the $DEVDATA/accountdevice directory . 
-Review the data in the data set, then upload the directory and its contents to the HDFS directory /loudacre/accountdevice.
+#### 19. The accountdevice CSV data files contain data lists all the devices used by all the accounts. Each row in the data set includes a row ID, an account ID, a device ID for the type of device, the date the device was activated for the account, and the specific device’s ID for that account. The CSV data files are in the $DEVDATA/accountdevice directory . Review the data in the data set, then upload the directory and its contents to the HDFS directory /loudacre/accountdevice.
 ```
 hdfs dfs -put $DEVDATA/accountdevice/ /loudacre/accountdevice
 hdfs dfs -ls /loudacre/accountdevice/
 ```
+
+
 #### 20. Createa DataFrame based on the accountdevice datafiles.
 ```
 var accountDeviceDF = spark.read
