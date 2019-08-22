@@ -122,10 +122,11 @@ hdfs dfs -cat /loudacre/account-models/part-00000
  hdfs dfs -put ~/training_materials/data/devicestatus.txt /loudacre/
  var devicerdd = sc.textFile("/loudacre/devicestatus.txt")
  var devicedata = devicerdd.map(status => status.split(','))
-          .filter(values => values.length == 14)
-          .map(values => (values(0), values(1).split(' ')(0), values(12), values(13)))
- devicedata.map(values => values.toString)   
-           .saveToFile("/loudacre/devicestatus_etl")
+                           .filter(values => values.length == 14)
+                           .map(values => (values(0), values(1).split(' ')(0), values(12), values(13)))
+                           .map(values => values.toString())
+                           .map(values => values.substring(1, values.length -1 ))
+                           .saveAsTextFile("/loudacre/devicestatus_etl")
 ```
 
 ## solution
@@ -156,12 +157,26 @@ devicedata.
 
 ```
 
-# pair rdd
+# web logs pair rdd
 ## pair 사용법
 ```
 pair => pair.swap
 pair => pair._1
 ```
+
+### 
+```
+var weblogsRdd = sc.textFile("/loudacre/weblogs/*2.log")
+var useridMap = weblogsRdd.map(line => line.split(' ')(2))
+                          .map(userid => (userid, 1))
+                          .reduceByKey((a, b) => a + b)
+var frequency = useridMap.map(pair => pair.swap)
+                         .countByKey()
+var useripMap = weblogsRdd.map(line => (line.split(' ')(2), line.split(' ')(0)))
+			  .groupByKey()
+
+```
+
 
 ### solution
 ```
