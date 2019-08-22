@@ -64,7 +64,7 @@ val fields = List(StructField("acct_num", LongType),
 
 val struct = StructType(fields)
 
-var accountsDF = spark.read.schema(struct).csv("/FileStore/tables/accounts/")
+var accountsDF = spark.read.schema(struct).csv("/FileStore/tables/loudacre/accounts.txt")
 accountsDF.printSchema()
 accountsDF.show(5)
 ```
@@ -115,6 +115,13 @@ var accountDeviceDF = spark.read
 accountDeviceDF.show(5)
 
 
-
+// 21. Use the account device data and the DataFrames you created previously in this exercise to find the total number of each device model across all active accounts 
+// (that is, accounts that have not been closed). 
+// The new DataFrame should be sorted from most to least common model. 
+// Save the data as Parquet files in a directory called /loudacre/top_devices with the following columns:device_id, make, model, active_num
+accountsDF.printSchema()
+var activeAccountDF = accountsDF.where(accountsDF("acct_close_dt").isNull)
+                          
+activeAccountDF.show(5)
 
 ```
