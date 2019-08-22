@@ -137,4 +137,22 @@ var activeAccountDF = accountsDF.where(accountsDF("acct_close_dt").isNull)
                           
 activeAccountDF.show(5)
 
+activeAccountDF.join(accountDeviceDF, activeAccountDF("acct_num") === accountDeviceDF("account_id")).show(5)
+
+var groupByDeviceDF = activeAccountDF.join(accountDeviceDF, activeAccountDF("acct_num") === accountDeviceDF("account_id"))
+              .groupBy("device_id").count()
+              .withColumnRenamed("count", "active_num")
+              .orderBy($"count".desc)
+groupByDeviceDF.show(10)
+
+
+var deviceDF = spark.read.json("/FileStore/tables/devices.json")
+deviceDF.printSchema()
+deviceDF.show(5)
+
+groupByDeviceDF.join(deviceDF,groupByDeviceDF("device_id") ===  deviceDF("devnum"))
+                .select("device_id", "make", "model", "active_num")
+                .show(20)
+              
+
 ```
