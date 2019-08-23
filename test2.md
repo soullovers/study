@@ -171,5 +171,15 @@ sqlDF.write
 
 ## Problem 7
 ```
+var customerDF = spark.read.format("csv")
+.option("header","true")
+.load("/FileStore/tables/problem7/customer.csv")
+customerDF.show(5)
+customerDF.printSchema()
 
+var billingDF = spark.read.format("csv")
+.option("header","true")
+.load("/FileStore/tables/problem7/billing.csv")
+billingDF.show(5)
+billingDF.printSchema()
 ```
