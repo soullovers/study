@@ -55,5 +55,7 @@ object StreamingLogs {
 
 ### 실행
 ```
+cd $DEVSH/exercises/spark-streaming/streaminglogs_project
+mvn package 
 spark-submit --master 'local[2]' --class stubs.StreamingLogs target/streamlog-1.0.jar localhost 1234
 ```
