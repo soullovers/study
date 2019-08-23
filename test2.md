@@ -243,6 +243,7 @@ resultDF
 ```
 
 ## Problem 9
+#### read
 ```
 var sensorDF = spark.read
                     .format("csv")
@@ -252,7 +253,10 @@ var sensorDF = spark.read
 
 sensorDF.show(5)
 sensorDF.printSchema()
+```
 
+#### etl
+```
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.FloatType
 
@@ -261,14 +265,29 @@ var resultDF = sensorDF
       .groupBy("Phone_Model")
       .avg("temp")
 resultDF.show(5)
+```
 
-resultDF.write
+#### save
+```
+resultDF.coalesce(1)
+        .write
         .mode("overwrite")
         .format("csv")
         .option("header","false")
         .option("compression","uncompressed")
         .option("sep",",")
         .save("/FileStore/tables/problem9/solution")
+```
+
+#### sql
+```
+var sqlDF = sensorDF.createOrReplaceTempView("sensor")
+
+var resultDF = spark.sql("""
+select Phone_Model, cast(avg(float(Temperature)) as decimal(14,12)) from sensor
+group by Phone_Model
+""")
+resultDF.show()
 ```
 
 ### compression
