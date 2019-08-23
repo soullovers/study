@@ -82,6 +82,14 @@ deviceDF.write
 .option("header","true")
 .option("compression","gzip")
 .parquet("/FileStore/tables/problem3/solution")
+
+// avro
+deviceDF.write
+.format("com.databricks.spark.avro")
+.mode("overwrite")
+.option("header","true")
+.option("compression","uncompressed")
+.save("/FileStore/tables/problem3/solution")
 ```
 
 ## Problem 4. hdfs-> new file format (snappy) ->hdfs
@@ -163,27 +171,105 @@ val sqlDF = spark.sql("SELECT first_name, last_name, concat(substring(first_name
 sqlDF.show()
 
 sqlDF.write
-.format("parquet")
-.option("compression", "snappy")
-.save("/FileStore/tables/problem6/solution/")
+    .format("parquet")
+    .option("compression", "snappy")
+    .save("/FileStore/tables/problem6/solution/")
 
 ```
 
 ## Problem 7
 ```
-var customerDF = spark.read.format("csv")
-.option("header","true")
-.load("/FileStore/tables/problem7/customer.csv")
+var customerDF = spark
+    .read
+    .format("csv")
+    .option("header","true")
+    .load("/FileStore/tables/problem7/customer.csv")
 customerDF.show(5)
 customerDF.printSchema()
 
-var billingDF = spark.read.format("csv")
-.option("header","true")
-.load("/FileStore/tables/problem7/billing.csv")
+var billingDF = spark
+      .read
+      .format("csv")
+      .option("header","true")
+      .load("/FileStore/tables/problem7/billing.csv")
 billingDF.show(5)
 billingDF.printSchema()
+
+customerDF.createOrReplaceTempView("customer")
+billingDF.createOrReplaceTempView("billing")
+
+val sqlDF = spark.sql("""
+  select concat_ws(' ',fname,lname) full_name, cast(sum(float(amount)) as decimal(9,2)) as amount
+  from customer c join billing b on b.custid = c.id 
+  group by full_name
+""")
+sqlDF.show(5)
+
+sqlDF.coalesce(1)
+  .write
+  .format("csv")
+  .mode("overwrite")
+  .option("header","false")
+  .option("sep","\t")
+  .save("/FileStore/tables/problem7/solution/")
+
 ```
 
+## Problem 8 
+```
+var employeesDF = spark.read
+.format("csv")
+.option("header","true")
+.option("sep",",")
+.load("/FileStore/tables/problem8/employees.csv")
+employeesDF.show(5)
+employeesDF.printSchema()
+
+var sqlDF = employeesDF.createOrReplaceTempView("employees")
+
+var resultDF = spark.sql("""
+select concat_ws(' ', finst_name, last_name) as full_name, date_format(to_date(birthday,'dd/MM/yy'),'MM/dd') as anniversary from employees
+order by anniversary
+""")
+
+resultDF
+  .coalesce(1)
+  .write
+  .mode("overwrite")
+  .format("csv")
+  .option("sep","\t")
+  .option("header","false")
+  .save("/FileStore/tables/problem8/solution/")
+```
+
+## Problem 9
+```
+var sensorDF = spark.read
+                    .format("csv")
+                    .option("header", "true")
+                    .option("compression","uncompressed")
+                    .load("/FileStore/tables/problem9/sensor.csv")
+
+sensorDF.show(5)
+sensorDF.printSchema()
+
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.FloatType
+
+var resultDF = sensorDF
+      .select(sensorDF("Phone_Model"), sensorDF("Temperature").cast(FloatType).alias("temp"))
+      .groupBy("Phone_Model")
+      .avg("temp")
+resultDF.show(5)
+
+resultDF.write
+        .mode("overwrite")
+        .format("csv")
+        .option("header","false")
+        .option("compression","uncompressed")
+        .option("sep",",")
+        .save("/FileStore/tables/problem9/solution")
+```
 
 ### compression
 - uncompressed
