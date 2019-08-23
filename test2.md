@@ -76,27 +76,34 @@ deviceDF.show(5)
 
 deviceDF.where($"make" === "MeeToo").show(5)
 
-deviceDF.where($"make" === "MeeToo").show(5)
-deviceDF.write
-.mode("overwrite")
-.option("header","true")
-.option("compression","gzip")
-.parquet("/FileStore/tables/problem3/solution")
+```
 
+#### save
+```
+deviceDF.write
+        .mode("overwrite")
+        .format("parquet")
+        .option("header","true")
+        .option("compression","gzip")
+        .save("/FileStore/tables/problem3/solution")
+        
 // avro
 deviceDF.write
-.format("com.databricks.spark.avro")
-.mode("overwrite")
-.option("header","true")
-.option("compression","uncompressed")
-.save("/FileStore/tables/problem3/solution")
+        .format("com.databricks.spark.avro")
+        .mode("overwrite")
+        .option("header","true")
+        .option("compression","uncompressed")
+        .save("/FileStore/tables/problem3/solution")
 ```
 
 ## Problem 4. hdfs-> new file format (snappy) ->hdfs
 ```
 var accountsDF = spark.read.csv("/FileStore/tables/accounts/accounts.txt")
 accountsDF.show(5)
+```
 
+#### etl
+```
 var cleanAccountDF = accountsDF.select($"_c0".alias("id"), 
                   $"_c3".alias("fname"),
                   $"_c4".alias("lname"),
@@ -106,6 +113,11 @@ var cleanAccountDF = accountsDF.select($"_c0".alias("id"),
                   $"_c8".alias("zip")
                  )
 cleanAccountDF.show(5)
+
+```
+
+#### save
+```
 cleanAccountDF.write
               .option("compression","snappy")
               .parquet("/FileStore/tables/problem4/solution")
@@ -114,10 +126,14 @@ cleanAccountDF.write
 
 
 ## Problem 5 Calculate how many customers live in each city of the country. 
+#### read
 ```
 var accountsDF = spark.read.csv("/FileStore/tables/accounts/accounts.txt")
 accountsDF.show(5)
+```
 
+#### etl
+```
 var cleanAccountDF = accountsDF.select($"_c0".alias("id"), 
                   $"_c3".alias("fname"),
                   $"_c4".alias("lname"),
@@ -134,7 +150,10 @@ var groupByCityDF = cleanAccountDF.groupBy("city","state")
 groupByCityDF.show(5)
 groupByCityDF.printSchema()
 
+```
 
+#### save
+```
 groupByCityDF.coalesce(1)
              .write
              .mode("overwrite")
@@ -149,7 +168,10 @@ groupByCityDF.coalesce(1)
 ```
 var accountsDF = spark.read.csv("/FileStore/tables/accounts/accounts.txt")
 accountsDF.show(5)
+```
 
+#### etl
+```
 var cleanAccountDF = accountsDF.select($"_c0".alias("id"), 
                   $"_c3".alias("first_name"),
                   $"_c4".alias("last_name"),
@@ -163,18 +185,24 @@ cleanAccountDF.write
               .mode("overwrite")
               .parquet("/FileStore/tables/problem6/data")
 ```
-
+#### read
 ```
 var accountsDF = spark.read.format("parquet")
                       .load("/FileStore/tables/problem6/data/")
 accountsDF.printSchema()
 accountsDF.show()
+```
 
+#### etl
+```
 accountsDF.createOrReplaceTempView("account")
 
 val sqlDF = spark.sql("SELECT first_name, last_name, concat(substring(first_name,0,1), last_name) as alias FROM account")
 sqlDF.show()
+```
 
+#### save
+```
 sqlDF.write
     .format("parquet")
     .option("compression", "snappy")
@@ -183,68 +211,79 @@ sqlDF.write
 ```
 
 ## Problem 7
+#### read
 ```
-var customerDF = spark
-    .read
-    .format("csv")
-    .option("header","true")
-    .load("/FileStore/tables/problem7/customer.csv")
+var customerDF = spark.read
+                      .format("csv")
+                      .option("header","true")
+                      .load("/FileStore/tables/problem7/customer.csv")
 customerDF.show(5)
 customerDF.printSchema()
 
-var billingDF = spark
-      .read
-      .format("csv")
-      .option("header","true")
-      .load("/FileStore/tables/problem7/billing.csv")
+var billingDF = spark.read
+                     .format("csv")
+                     .option("header","true")
+                     .load("/FileStore/tables/problem7/billing.csv")
 billingDF.show(5)
 billingDF.printSchema()
+```
 
+#### etl
+```
 customerDF.createOrReplaceTempView("customer")
 billingDF.createOrReplaceTempView("billing")
 
 val sqlDF = spark.sql("""
-  select concat_ws(' ',fname,lname) full_name, cast(sum(float(amount)) as decimal(9,2)) as amount
-  from customer c join billing b on b.custid = c.id 
-  group by full_name
+    select concat_ws(' ',fname,lname) full_name, cast(sum(float(amount)) as decimal(9,2)) as amount
+    from customer c join billing b on b.custid = c.id 
+    group by full_name
 """)
 sqlDF.show(5)
+```
 
+#### save
+```
 sqlDF.coalesce(1)
-  .write
-  .format("csv")
-  .mode("overwrite")
-  .option("header","false")
-  .option("sep","\t")
-  .save("/FileStore/tables/problem7/solution/")
+     .write
+     .format("csv")
+     .mode("overwrite")
+     .option("header","false")
+     .option("sep","\t")
+     .save("/FileStore/tables/problem7/solution/")
 
 ```
 
 ## Problem 8 
+#### read
 ```
 var employeesDF = spark.read
-.format("csv")
-.option("header","true")
-.option("sep",",")
-.load("/FileStore/tables/problem8/employees.csv")
+                       .format("csv")
+                       .option("header","true")
+                       .option("sep",",")
+                       .load("/FileStore/tables/problem8/employees.csv")
 employeesDF.show(5)
 employeesDF.printSchema()
+```
 
+#### etl
+```
 var sqlDF = employeesDF.createOrReplaceTempView("employees")
 
 var resultDF = spark.sql("""
-select concat_ws(' ', finst_name, last_name) as full_name, date_format(to_date(birthday,'dd/MM/yy'),'MM/dd') as anniversary from employees
-order by anniversary
+    select concat_ws(' ', finst_name, last_name) as full_name, date_format(to_date(birthday,'dd/MM/yy'),'MM/dd') as anniversary from employees
+    order by anniversary
 """)
+```
 
-resultDF
-  .coalesce(1)
-  .write
-  .mode("overwrite")
-  .format("csv")
-  .option("sep","\t")
-  .option("header","false")
-  .save("/FileStore/tables/problem8/solution/")
+#### save
+```
+resultDF.coalesce(1)
+        .write
+        .mode("overwrite")
+        .format("csv")
+        .option("sep","\t")
+        .option("header","false")
+        .save("/FileStore/tables/problem8/solution/")
 ```
 
 ## Problem 9
@@ -272,6 +311,17 @@ var resultDF = sensorDF
 resultDF.show(5)
 ```
 
+#### sql
+```
+var sqlDF = sensorDF.createOrReplaceTempView("sensor")
+
+var resultDF = spark.sql("""
+    select Phone_Model, cast(avg(float(Temperature)) as decimal(14,12)) from sensor
+    group by Phone_Model
+""")
+resultDF.show()
+```
+
 #### save
 ```
 resultDF.coalesce(1)
@@ -284,16 +334,6 @@ resultDF.coalesce(1)
         .save("/FileStore/tables/problem9/solution")
 ```
 
-#### sql
-```
-var sqlDF = sensorDF.createOrReplaceTempView("sensor")
-
-var resultDF = spark.sql("""
-select Phone_Model, cast(avg(float(Temperature)) as decimal(14,12)) from sensor
-group by Phone_Model
-""")
-resultDF.show()
-```
 
 ### compression
 - uncompressed
