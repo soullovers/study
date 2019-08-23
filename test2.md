@@ -183,3 +183,7 @@ var billingDF = spark.read.format("csv")
 billingDF.show(5)
 billingDF.printSchema()
 ```
+
+
+### compression
+- uncompressed
