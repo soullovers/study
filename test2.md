@@ -69,10 +69,65 @@ sqoop export \
 ```
 
 
-## hive table -> hdfs
+## hive table -> hdfs (parquet)
 ```
 var deviceDF = spark.read.table("devices_json")
 deviceDF.show(5)
 
 deviceDF.where($"make" === "MeeToo").show(5)
+
+deviceDF.where($"make" === "MeeToo").show(5)
+deviceDF.write
+.mode("overwrite")
+.option("header","true")
+.option("compression","gzip")
+.parquet("/FileStore/tables/problem3/solution")
 ```
+
+## hdfs-> new file format (snappy) ->hdfs
+```
+var accountsDF = spark.read.csv("/FileStore/tables/accounts/accounts.txt")
+accountsDF.show(5)
+
+var cleanAccountDF = accountsDF.select($"_c0".alias("id"), 
+                  $"_c3".alias("fname"),
+                  $"_c4".alias("lname"),
+                  $"_c5".alias("street"),
+                  $"_c6".alias("city"),
+                  $"_c7".alias("state"),
+                  $"_c8".alias("zip")
+                 )
+cleanAccountDF.show(5)
+cleanAccountDF.write
+              .option("compression","snappy")
+              .parquet("/FileStore/tables/problem4/solution")
+
+```
+
+
+## Calculate how many customers live in each city of the country. 
+```
+var accountsDF = spark.read.csv("/FileStore/tables/accounts/accounts.txt")
+accountsDF.show(5)
+
+var cleanAccountDF = accountsDF.select($"_c0".alias("id"), 
+                  $"_c3".alias("fname"),
+                  $"_c4".alias("lname"),
+                  $"_c5".alias("street"),
+                  $"_c6".alias("city"),
+                  $"_c7".alias("state"),
+                  $"_c8".alias("zip")
+                 )
+cleanAccountDF.show(5)
+cleanAccountDF.write
+              .option("compression","snappy")
+              .parquet("/FileStore/tables/problem4/solution")
+
+
+var groupDF = cleanAccountDF.groupBy("city").count()
+var groupByCityDF = groupDF.join(cleanAccountDF,"city" )
+        .select($"city", $"state", $"count".alias("total_number"))
+groupByCityDF.show(5)
+```
+
+
