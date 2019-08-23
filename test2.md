@@ -128,15 +128,20 @@ var cleanAccountDF = accountsDF.select($"_c0".alias("id"),
                  )
 cleanAccountDF.show(5)
 
-var groupByCityDF = cleanAccountDF.selectExpr("city", "state", "cast(count as string) as total_number")
+var groupByCityDF = cleanAccountDF.groupBy("city","state")
+                                  .count()
+                                  .select($"city", $"state", $"count".alias("total_number"))
 groupByCityDF.show(5)
 groupByCityDF.printSchema()
 
 
-groupByCityDF.write
-.mode("overwrite")
-.option("delimiter","\n")
-.csv("/FileStore/tables/problem5/solution/")
+groupByCityDF.coalesce(1)
+             .write
+             .mode("overwrite")
+             .format("csv")
+             .option("delimiter","\t")
+             .option("header","false")
+             .save("/FileStore/tables/problem5/solution/")
 ```
 
 ## Problem 6
