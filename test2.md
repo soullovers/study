@@ -168,3 +168,8 @@ sqlDF.write
 .save("/FileStore/tables/problem6/solution/")
 
 ```
+
+## Problem 7
+```
+
+```
