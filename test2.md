@@ -44,6 +44,18 @@ sqoop export \
 --export-dir "/loudacre/problem2/" 
 ```
 
+### sqoop
+```
+--as-avrodatafile                                        
+--as-parquetfile                                  
+--as-sequencefile
+--as-textfile
+--compression-codec
+--delete-target-dir
+
+```
+
+
 ## sqoop export
 ```
 sqoop import \
