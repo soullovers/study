@@ -11,7 +11,7 @@ show databases;
 sqoop eval \
   --connect jdbc:mysql://localhost/loudacre \
   --username training --password training \
-  --decribe
+  --query "describe accounts"
 
 ```
 # sqoop import
