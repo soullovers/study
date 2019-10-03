@@ -15,7 +15,7 @@ sqoop import \
 --delete-target-dir
 --fields=terminated-by ","
 --columns "time,sensor,customer"
---m1
+-m 1
 ```
 
 ### 2
@@ -47,14 +47,14 @@ sqlDF.coalesce(1)
 .option("compression","gzip")
 .save("/user/cert/problem3/solution/")
 
-spark.read.parquet("/user/cert/problem3/solution/00.gz.parquet").printSchema()
+spark.read.parquet("/user/cert/problem3/solution/").printSchema()
 
 ```
 
 
 ### 4
 ```
-spark-shell2 --driver-memory 2g --executor-memory 2g
+spark2-shell --driver-memory 2g --executor-memory 2g
 ```
 
 ```
